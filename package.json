@@ -1,0 +1,45 @@
+{
+  "name": "gestor-desejos-electron",
+  "version": "1.0.0",
+  "description": "Gestor de Desejos e Parcelamentos",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron": "^28.0.0",
+    "better-sqlite3": "^9.0.0",
+    "playwright": "^1.40.0",
+    "winston": "^3.11.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.example.gestordesejos",
+    "productName": "Gestor de Desejos",
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "src/**/*",
+      "!src/**/*.test.js",
+      "!src/**/*.spec.js",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist_electron"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
