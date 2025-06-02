@@ -1,0 +1,249 @@
+Plano de Ação: Aprimoramento do Projeto Gestor de Desejos
+Este plano de ação detalha os passos para aprimorar o projeto "Gestor de Desejos". Cada item principal deve ser seguido por sub-itens que detalham as tarefas específicas. Marque cada item com [x] após a conclusão.
+
+1. Diagnóstico e Preparação Inicial
+[ ] 1.1. Análise da Estrutura Atual do Projeto
+
+[ ] 1.1.1. Clonar o repositório do projeto "Gestor de Desejos".
+
+[ ] 1.1.2. Analisar a estrutura de pastas e arquivos.
+
+[ ] 1.1.3. Identificar a linguagem de programação principal, frameworks e bibliotecas utilizadas.
+
+[ ] 1.1.4. Mapear as funcionalidades existentes.
+
+[ ] 1.2. Revisão do README.md Existente
+
+[ ] 1.2.1. Ler o README.md atual e identificar informações faltantes ou desatualizadas.
+
+[ ] 1.3. Configuração do Ambiente de Desenvolvimento
+
+[ ] 1.3.1. Listar os pré-requisitos para rodar o projeto.
+
+[ ] 1.3.2. Configurar o ambiente de desenvolvimento local.
+
+[ ] 1.3.3. Garantir que o projeto pode ser compilado/executado e que os testes existentes (se houver) passam.
+
+[ ] 1.4. Análise de Documentação Interna (se houver)
+
+[ ] 1.4.1. Buscar por qualquer documentação adicional no projeto (wikis, diagramas, etc.).
+
+[ ] 1.4.2. (Documentação Analisada: Listar aqui os documentos encontrados e analisados)
+
+2. Melhorias na Documentação e Organização do Código
+[ ] 2.1. Atualização Abrangente do README.md
+
+[ ] 2.1.1. Adicionar/Atualizar Descrição Clara: O que o projeto faz e qual problema resolve.
+
+[ ] 2.1.2. Listar/Atualizar Funcionalidades Principais: Detalhar o que o usuário pode fazer.
+
+[ ] 2.1.3. Detalhar/Atualizar Como Instalar/Rodar: Instruções passo a passo, pré-requisitos, comandos de instalação e execução.
+
+[ ] 2.1.4. Adicionar/Atualizar Como Usar: Exemplos básicos de uso, fluxos principais.
+
+[ ] 2.1.5. Adicionar/Atualizar Tecnologias Utilizadas: Listar linguagens, frameworks, bancos de dados, etc.
+
+[ ] 2.1.6. (Opcional) Adicionar Screenshots ou GIFs: Se houver interface gráfica, ilustrar o uso.
+
+[ ] 2.1.7. Adicionar/Atualizar Como Contribuir: Se aplicável.
+
+[ ] 2.2. Melhoria dos Comentários no Código
+
+[ ] 2.2.1. Revisar o código existente e adicionar comentários Javadoc/PHPDoc/equivalente para todas as classes e funções públicas.
+
+[ ] 2.2.2. Adicionar comentários explicativos em blocos de código complexos ou com lógica não trivial.
+
+[ ] 2.2.3. Garantir que os nomes de variáveis, funções e classes sejam significativos e sigam as convenções da linguagem.
+
+[ ] 2.3. Refatoração e Organização da Estrutura do Código
+
+[ ] 2.3.1. Avaliar a modularidade do código: identificar classes/módulos grandes ou com múltiplas responsabilidades.
+
+[ ] 2.3.2. Propor e implementar refatorações para melhorar a organização, coesão e acoplamento (ex: extrair classes, métodos, aplicar princípios SOLID, DRY).
+
+[ ] 2.3.3. Configurar e aplicar ferramentas de linting e formatação de código para garantir consistência (ex: ESLint, Prettier, Black, Checkstyle).
+
+3. Implementação de Novas Funcionalidades e Melhorias de UX
+[ ] 3.1. Funcionalidade: Priorização de Desejos
+
+[ ] 3.1.1. Definir/Atualizar modelo de dados para incluir campo de prioridade (ex: Baixa, Média, Alta).
+
+[ ] 3.1.2. Implementar lógica de negócio para definir e consultar prioridade.
+
+[ ] 3.1.3. Atualizar/Criar interface (API e/ou UI) para o usuário gerenciar a prioridade dos desejos.
+
+[ ] 3.1.4. Escrever testes unitários para a lógica de priorização.
+
+[ ] 3.2. Funcionalidade: Categorias/Tags para Desejos
+
+[ ] 3.2.1. Definir/Atualizar modelo de dados para associar desejos a categorias ou tags.
+
+[ ] 3.2.2. Implementar lógica de negócio para CRUD de categorias/tags e associação com desejos.
+
+[ ] 3.2.3. Atualizar/Criar interface para gerenciamento e filtro por categorias/tags.
+
+[ ] 3.2.4. Escrever testes unitários.
+
+[ ] 3.3. Funcionalidade: Datas Limite/Lembretes
+
+[ ] 3.3.1. Definir/Atualizar modelo de dados para incluir datas limite.
+
+[ ] 3.3.2. Implementar lógica de negócio para definir datas e, opcionalmente, sistema de lembretes (pode ser um log ou notificação simples inicialmente).
+
+[ ] 3.3.3. Atualizar/Criar interface para gerenciamento de datas.
+
+[ ] 3.3.4. Escrever testes unitários.
+
+[ ] 3.4. Funcionalidade: Status do Desejo
+
+[ ] 3.4.1. Definir/Atualizar modelo de dados para status (ex: Pendente, Em Andamento, Realizado, Cancelado).
+
+[ ] 3.4.2. Implementar lógica de negócio para transição de status.
+
+[ ] 3.4.3. Atualizar/Criar interface para visualização e alteração de status.
+
+[ ] 3.4.4. Escrever testes unitários.
+
+[ ] 3.5. Funcionalidade: Adicionar Detalhes aos Desejos
+
+[ ] 3.5.1. Definir/Atualizar modelo de dados para campos como notas (texto longo), links (URL), caminho para imagens, preço estimado.
+
+[ ] 3.5.2. Implementar lógica de negócio para CRUD desses detalhes.
+
+[ ] 3.5.3. Atualizar/Criar interface para adicionar e visualizar esses detalhes.
+
+[ ] 3.5.4. Escrever testes unitários.
+
+[ ] 3.6. Funcionalidade: Busca e Filtros Avançados
+
+[ ] 3.6.1. Implementar lógica de busca textual no nome e descrição dos desejos.
+
+[ ] 3.6.2. Implementar filtros combinados por categoria, prioridade, status, e faixa de preço (se aplicável).
+
+[ ] 3.6.3. Atualizar/Criar interface para utilizar a busca e os filtros.
+
+[ ] 3.6.4. Escrever testes unitários e de integração para a funcionalidade de busca/filtros.
+
+[ ] 3.7. (Opcional, se aplicável) Melhorias na Interface Gráfica (UI)
+
+[ ] 3.7.1. Avaliar a UI existente (se houver) e identificar pontos de melhoria na usabilidade e design.
+
+[ ] 3.7.2. Implementar melhorias na UI ou criar uma UI básica se for uma aplicação de console.
+
+[ ] 3.7.3. Garantir responsividade se for uma aplicação web.
+
+[ ] 3.8. (Opcional) Implementação de Autenticação de Usuários
+
+[ ] 3.8.1. Definir estratégia de autenticação (ex: JWT, OAuth2, sessions).
+
+[ ] 3.8.2. Implementar sistema de registro, login e logout.
+
+[ ] 3.8.3. Proteger rotas/funcionalidades que exigem autenticação.
+
+[ ] 3.8.4. Escrever testes para o fluxo de autenticação.
+
+4. Tratamento de Erros e Validação de Dados
+[ ] 4.1. Implementação de Validação de Entradas
+
+[ ] 4.1.1. Identificar todos os pontos de entrada de dados do usuário (formulários, parâmetros de API).
+
+[ ] 4.1.2. Implementar validações robustas para cada campo (ex: tipo, formato, obrigatoriedade, limites).
+
+[ ] 4.1.3. Fornecer feedback claro ao usuário sobre erros de validação.
+
+[ ] 4.2. Padronização e Melhoria de Mensagens de Erro
+
+[ ] 4.2.1. Revisar mensagens de erro existentes e torná-las mais claras e úteis para o usuário.
+
+[ ] 4.2.2. Implementar um sistema centralizado ou padrão para logs de erro no backend.
+
+[ ] 4.3. Tratamento de Exceções
+
+[ ] 4.3.1. Revisar o código para garantir que exceções sejam capturadas e tratadas adequadamente.
+
+[ ] 4.3.2. Evitar a exposição de detalhes de implementação em mensagens de erro para o cliente.
+
+[ ] 4.3.3. Implementar páginas de erro amigáveis (ex: 404, 500) se for uma aplicação web.
+
+5. Testes Abrangentes
+[ ] 5.1. Escrita e Expansão de Testes Unitários
+
+[ ] 5.1.1. Garantir que todas as novas funcionalidades e lógicas de negócio críticas tenham cobertura de testes unitários.
+
+[ ] 5.1.2. Aumentar a cobertura de testes para módulos existentes, se necessário.
+
+[ ] 5.2. (Opcional) Escrita de Testes de Integração
+
+[ ] 5.2.1. Identificar fluxos críticos que envolvem a interação de múltiplos componentes.
+
+[ ] 5.2.2. Escrever testes de integração para esses fluxos.
+
+[ ] 5.3. Execução e Validação dos Testes
+
+[ ] 5.3.1. Configurar um script para rodar todos os testes.
+
+[ ] 5.3.2. Garantir que todos os testes passem (exit code = 0) antes de cada commit significativo.
+
+[ ] 5.3.3. Integrar testes em um pipeline de CI/CD, se possível.
+
+6. Gerenciamento de Dependências
+[ ] 6.1. Revisão e Atualização de Dependências
+
+[ ] 6.1.1. Listar todas as dependências do projeto e suas versões atuais.
+
+[ ] 6.1.2. Verificar por atualizações de segurança e novas versões estáveis.
+
+[ ] 6.1.3. Atualizar as dependências de forma controlada, testando a compatibilidade. (DRY_RUN=true para avaliação inicial de impacto)
+
+[ ] 6.2. Manutenção do Arquivo de Dependências
+
+[ ] 6.2.1. Garantir que o arquivo de gerenciamento de dependências (ex: requirements.txt, package.json, pom.xml) esteja preciso e atualizado.
+
+7. Boas Práticas de Versionamento com Git
+[ ] 7.1. Commits Atômicos e Descritivos
+
+[ ] 7.1.1. Realizar commits pequenos e focados em uma única alteração lógica.
+
+[ ] 7.1.2. Escrever mensagens de commit claras e padronizadas (ex: seguindo Conventional Commits).
+
+[ ] 7.2. Uso Estratégico de Branches
+
+[ ] 7.2.1. Criar branches específicas para cada nova funcionalidade ou correção significativa (ex: feature/priorizacao-desejos, fix/bug-login).
+
+[ ] 7.2.2. Realizar Pull Requests/Merge Requests para integrar as alterações na branch principal, com revisão de código se possível.
+
+8. Revisão de Segurança
+[ ] 8.1. Análise de Vulnerabilidades Comuns
+
+[ ] 8.1.1. Revisar o código em busca de senhas ou chaves de API hardcoded.
+
+[ ] 8.1.2. Se usar banco de dados SQL, verificar proteção contra SQL Injection (uso de prepared statements/ORMs).
+
+[ ] 8.1.3. Se for uma aplicação web, verificar proteção contra XSS e CSRF.
+
+[ ] 8.2. Validação e Sanitização de Entradas
+
+[ ] 8.2.1. Confirmar que todas as entradas do usuário (incluindo URLs e cabeçalhos HTTP, se aplicável) são validadas no servidor e sanitizadas antes de serem usadas ou armazenadas.
+
+9. Finalização e Entrega
+[ ] 9.1. Teste Completo do Sistema
+
+[ ] 9.1.1. Realizar um teste manual completo de todas as funcionalidades (novas e existentes).
+
+[ ] 9.1.2. Se houver interface gráfica, testar em diferentes navegadores/dispositivos (se aplicável).
+
+[ ] 9.2. Atualização Final do plano_de_acao.md
+
+[ ] 9.2.1. Garantir que todos os itens do checklist estejam marcados como concluídos.
+
+[ ] 9.2.2. Adicionar quaisquer notas finais ou observações relevantes sobre a execução.
+
+[ ] 9.3. Preparação dos Entregáveis
+
+[ ] 9.3.1. Verificar se todos os entregáveis listados na tarefa_definicao.md estão prontos.
+
+[ ] 9.3.2. Criar um Pull Request final com todas as alterações para a branch principal do projeto.
+
+[ ] 9.4. Relatório de Conclusão
+
+[ ] 9.4.1. Escrever um breve resumo das principais alterações realizadas, desafios encontrados e soluções aplicadas.
