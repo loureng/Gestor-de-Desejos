@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Database file
+gestor_desejos.db
+gestor_desejos.db-journal # SQLite journal file
+gestor_desejos.db-shm # SQLite shared memory file
+gestor_desejos.db-wal # SQLite write-ahead log file
+
+# Logs
+logs/
+*.log
+
+# Build output
+dist/
+build/
+out/
+
+# OS generated files
+.DS_Store
+Thumbs.db
