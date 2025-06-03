@@ -146,21 +146,21 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
     // Desejos
-    addDesejo: (desejo) => ipcRenderer.invoke('add-desejo', desejo),
-    getDesejos: () => ipcRenderer.invoke('get-desejos'),
-    removeDesejo: (id) => ipcRenderer.invoke('remove-desejo', id),
+    addDesejo: (desejo) => ipcRenderer.invoke('db-desejo-add', desejo),
+    getDesejos: () => ipcRenderer.invoke('db-desejos-get'),
+    removeDesejo: (id) => ipcRenderer.invoke('db-desejo-remove', id),
     // Parcelamentos
-    addParcelamento: (parc) => ipcRenderer.invoke('add-parcelamento', parc),
-    getParcelamentos: () => ipcRenderer.invoke('get-parcelamentos'),
-    removeParcelamento: (id) => ipcRenderer.invoke('remove-parcelamento', id),
+    addParcelamento: (parc) => ipcRenderer.invoke('db-parcelamento-add', parc),
+    getParcelamentos: () => ipcRenderer.invoke('db-parcelamentos-get'),
+    removeParcelamento: (id) => ipcRenderer.invoke('db-parcelamento-remove', id),
     // Consulta e Histórico
-    buscarOfertasManualmente: (listaDesejos) => ipcRenderer.invoke('buscar-ofertas-manualmente', listaDesejos),
-    getHistorico: (filtro) => ipcRenderer.invoke('get-historico', filtro),
+    buscarOfertasManualmente: (listaDesejos) => ipcRenderer.invoke('app-buscar-ofertas', listaDesejos),
+    getHistorico: (filtro) => ipcRenderer.invoke('db-historico-get', filtro),
     // Configurações
-    getConfiguracoes: () => ipcRenderer.invoke('get-configuracoes'),
-    saveConfiguracoes: (configs) => ipcRenderer.invoke('save-configuracoes', configs),
+    getConfiguracoes: () => ipcRenderer.invoke('db-config-get'),
+    saveConfiguracoes: (configs) => ipcRenderer.invoke('db-config-save', configs),
     // Para receber atualizações/notificações do main process
-    onNotification: (callback) => ipcRenderer.on('main-notification', callback)
+    onNotification: (callback) => ipcRenderer.on('app-notification', callback)
 });
 
 No main.js (Processo Principal):
@@ -169,15 +169,15 @@ No main.js (Processo Principal):
 const { ipcMain } = require('electron');
 // ... import dos seus módulos de DB e Scraper ...
 
-ipcMain.handle('add-desejo', async (event, desejo) => {
+ipcMain.handle('db-desejo-add', async (event, desejo) => {
     // Lógica para salvar desejo no DB
     // return resultado (ex: o desejo salvo com ID)
 });
-ipcMain.handle('get-desejos', async () => {
+ipcMain.handle('db-desejos-get', async () => {
     // Lógica para ler desejos do DB
     // return listaDeDesejos
 });
-ipcMain.handle('buscar-ofertas-manualmente', async (event, listaDesejos) => {
+ipcMain.handle('app-buscar-ofertas', async (event, listaDesejos) => {
     // Para cada desejo na lista, chamar os scrapers
     // Coletar resultados
     // Salvar no histórico_cotacoes
