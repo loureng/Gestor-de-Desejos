@@ -333,7 +333,7 @@
                         </div>
                     </div>
                     <div class="mt-8">
-                        <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">Salvar Configurações</button>
+                        <button type="button" class="btn btn-primary" onclick="salvarConfiguracoes()">Salvar Configurações</button>
                     </div>
                 </form>
                  <p class="text-gray-500 mt-6 italic">
@@ -580,7 +580,7 @@
 
 
         // --- Lógica para Configurações (Simulada) ---
-        function salvarConfiguracoesSimulado() {
+        function salvarConfiguracoes() {
             const cep = document.getElementById('configCep').value;
             // ... obter outros valores ...
             alert(`Configurações salvas (simulação):\nCEP: ${cep}\nEm um app real, seriam persistidas.`);

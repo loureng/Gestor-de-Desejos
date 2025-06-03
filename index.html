@@ -496,7 +496,7 @@
                         </div>
                     </div>
                     <div class="mt-8">
-                        <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">Salvar Configurações</button>
+                        <button type="button" class="btn btn-primary" onclick="salvarConfiguracoes()">Salvar Configurações</button>
                     </div>
                 </form>
                  <p class="text-gray-500 mt-6 italic">
@@ -873,8 +873,6 @@
                 showNotification(`Erro inesperado ao carregar configurações: ${error.message}`, 'error');
             }
         }
-        
-        // Renomeado de salvarConfiguracoesSimulado para salvarConfiguracoes
         async function salvarConfiguracoes() {
             const configsObject = {
                 cep: document.getElementById('configCep').value,
@@ -898,7 +896,6 @@
                 showNotification(`Erro inesperado ao salvar configurações: ${error.message}`, 'error');
             }
         }
-        // Attach to button - assuming the button's onclick was `salvarConfiguracoesSimulado()`
         // If the button has an ID, it's better to add event listener in DOMContentLoaded
         // For now, this function is globally available if HTML calls salvarConfiguracoes()
 
@@ -923,17 +920,6 @@
                 });
             }
 
-            // Add event listener for save config button if it has an ID
-            // Example: document.getElementById('btnSalvarConfig').addEventListener('click', salvarConfiguracoes);
-            // For now, assuming the HTML was <button ... onclick="salvarConfiguracoes()">
-            // The provided HTML for the button is: <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">Salvar Configurações</button>
-            // So, we need to make sure salvarConfiguracoes is global or re-attach.
-            // Making it global for now by not wrapping in an IIFE or being a module.
-            // To be safe, explicitly assign it to the window object if it was not global or re-attach the event listener
-            const saveConfigBtn = Array.from(document.querySelectorAll('button.btn-primary')).find(btn => btn.textContent.includes('Salvar Configurações'));
-            if (saveConfigBtn) {
-                saveConfigBtn.onclick = salvarConfiguracoes; // Re-assign to the new async function
-            }
 
         });
     </script>
