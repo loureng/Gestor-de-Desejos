@@ -5,7 +5,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "lint": "eslint . --ext .js,.html",
+    "format": "prettier --write \"**/*.{js,jsx,html,css,json,md}\""
   },
   "dependencies": {
     "better-sqlite3": "^9.0.0",
@@ -15,7 +17,11 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
-    "electron-builder": "^24.9.1"
+    "electron-builder": "^24.9.1",
+    "eslint": "^8.0.0",
+    "prettier": "^2.0.0",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-prettier": "^4.0.0"
   },
   "build": {
     "appId": "com.example.gestordesejos",

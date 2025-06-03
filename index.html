@@ -1,941 +1,1031 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Desejos e Parcelamentos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Tailwind gray-100 */
-        }
-        /* Animações suaves para transições */
-        .tab-button {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            position: relative;
-            overflow: hidden;
-        }
-        .tab-button::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background-color: #3b82f6;
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-        .tab-button:hover::after {
-            width: 100%;
-        }
-        .tab-button.active {
-            border-bottom-color: #3b82f6;
-            color: #3b82f6;
-        }
-        .tab-button.active::after {
-            width: 100%;
-        }
-        .tab-button:hover {
-            background-color: #e5e7eb;
-        }
-        .tab-content {
-            display: none;
-            padding: 1.5rem;
-            background-color: white;
-            border-radius: 0 0 0.5rem 0.5rem; /* Rounded bottom corners */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .table th, .table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
-        }
-        .table th {
-            background-color: #f9fafb; /* Tailwind gray-50 */
-            font-weight: 600;
-        }
-        /* Melhorias nos inputs */
-        .input-field {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            transition: all 0.2s ease-in-out;
-            background-color: #f9fafb;
-        }
-        .input-field:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-            outline: none;
-            background-color: white;
-        }
-        .input-field:hover {
-            border-color: #9ca3af;
-        }
-        /* Tooltips */
-        [data-tooltip] {
-            position: relative;
-        }
-        [data-tooltip]:before {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.5rem;
-            background-color: #1f2937;
-            color: white;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-            z-index: 10;
-        }
-        [data-tooltip]:hover:before {
-            opacity: 1;
-            visibility: visible;
-            bottom: calc(100% + 5px);
-        }
-        /* Botões melhorados */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.375rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s ease, height 0.3s ease;
-        }
-        .btn:hover::after {
-            width: 200%;
-            height: 200%;
-        }
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #2563eb;
-            transform: translateY(-1px);
-        }
-        .btn-secondary {
-            background-color: #6b7280; /* Tailwind gray-500 */
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #4b5563; /* Tailwind gray-600 */
-        }
-        /* Melhorias nas cards */
-        .card {
-            background-color: white;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.25rem;
-            font-weight: 500;
-            color: #374151; /* Tailwind gray-700 */
-        }
-        .table-container {
-            max-height: 500px;
-            overflow-y: auto;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.375rem;
-            scrollbar-width: thin;
-            scrollbar-color: #d1d5db #f3f4f6;
-        }
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: #f3f4f6;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background-color: #d1d5db;
-            border-radius: 4px;
-        }
-        .table th {
-            position: sticky;
-            top: 0;
-            background-color: #f9fafb;
-            z-index: 10;
-        }
-        .table tr {
-            transition: background-color 0.2s ease;
-        }
-        .table tr:hover {
-            background-color: #f3f4f6;
-        }
-        /* Loader melhorado */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3b82f6;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 0.8s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Status indicators */
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        .status-badge.high {
-            background-color: #fee2e2;
-            color: #dc2626;
-        }
-        .status-badge.medium {
-            background-color: #fef3c7;
-            color: #d97706;
-        }
-        .status-badge.low {
-            background-color: #dcfce7;
-            color: #16a34a;
-        }
-        /* Notificações melhoradas */
-        .notification {
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.375rem;
-            background-color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            animation: slideIn 0.3s ease-out;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .notification.success {
-            border-left: 4px solid #10b981;
-        }
-        .notification.error {
-            border-left: 4px solid #ef4444;
-        }
-        .notification.info {
-            border-left: 4px solid #3b82f6;
-        }
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gestor de Desejos e Parcelamentos</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #f3f4f6; /* Tailwind gray-100 */
+            }
+            /* Animações suaves para transições */
+            .tab-button {
+                padding: 0.75rem 1.5rem;
+                cursor: pointer;
+                border-bottom: 2px solid transparent;
+                transition: all 0.3s ease;
+                font-weight: 500;
+                position: relative;
+                overflow: hidden;
+            }
+            .tab-button::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background-color: #3b82f6;
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+            }
+            .tab-button:hover::after {
+                width: 100%;
+            }
+            .tab-button.active {
+                border-bottom-color: #3b82f6;
+                color: #3b82f6;
+            }
+            .tab-button.active::after {
+                width: 100%;
+            }
+            .tab-button:hover {
+                background-color: #e5e7eb;
+            }
+            .tab-content {
+                display: none;
+                padding: 1.5rem;
+                background-color: white;
+                border-radius: 0 0 0.5rem 0.5rem; /* Rounded bottom corners */
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .tab-content.active {
+                display: block;
+            }
+            .table th,
+            .table td {
+                padding: 0.75rem;
+                text-align: left;
+                border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
+            }
+            .table th {
+                background-color: #f9fafb; /* Tailwind gray-50 */
+                font-weight: 600;
+            }
+            /* Melhorias nos inputs */
+            .input-field {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                border: 1px solid #d1d5db;
+                border-radius: 0.375rem;
+                transition: all 0.2s ease-in-out;
+                background-color: #f9fafb;
+            }
+            .input-field:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+                outline: none;
+                background-color: white;
+            }
+            .input-field:hover {
+                border-color: #9ca3af;
+            }
+            /* Tooltips */
+            [data-tooltip] {
+                position: relative;
+            }
+            [data-tooltip]:before {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 0.5rem;
+                background-color: #1f2937;
+                color: white;
+                border-radius: 0.25rem;
+                font-size: 0.875rem;
+                white-space: nowrap;
                 opacity: 0;
+                visibility: hidden;
+                transition: all 0.2s ease;
+                z-index: 10;
             }
-            to {
-                transform: translateX(0);
+            [data-tooltip]:hover:before {
                 opacity: 1;
+                visibility: visible;
+                bottom: calc(100% + 5px);
             }
-        }
-    </style>
-</head>
-<body class="p-4 md:p-8">
-    <div id="notification-area" style="position: fixed; top: 10px; right: 10px; z-index: 1000; width: 300px;"></div>
-    <div class="container mx-auto max-w-5xl">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Gestor de Desejos e Parcelamentos</h1>
+            /* Botões melhorados */
+            .btn {
+                padding: 0.75rem 1.5rem;
+                border-radius: 0.375rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+            }
+            .btn::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.3s ease, height 0.3s ease;
+            }
+            .btn:hover::after {
+                width: 200%;
+                height: 200%;
+            }
+            .btn-primary {
+                background-color: #3b82f6;
+                color: white;
+            }
+            .btn-primary:hover {
+                background-color: #2563eb;
+                transform: translateY(-1px);
+            }
+            .btn-secondary {
+                background-color: #6b7280; /* Tailwind gray-500 */
+                color: white;
+            }
+            .btn-secondary:hover {
+                background-color: #4b5563; /* Tailwind gray-600 */
+            }
+            /* Melhorias nas cards */
+            .card {
+                background-color: white;
+                border-radius: 0.5rem;
+                padding: 1.5rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                margin-bottom: 1.5rem;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 0.25rem;
+                font-weight: 500;
+                color: #374151; /* Tailwind gray-700 */
+            }
+            .table-container {
+                max-height: 500px;
+                overflow-y: auto;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.375rem;
+                scrollbar-width: thin;
+                scrollbar-color: #d1d5db #f3f4f6;
+            }
+            .table-container::-webkit-scrollbar {
+                width: 8px;
+            }
+            .table-container::-webkit-scrollbar-track {
+                background: #f3f4f6;
+            }
+            .table-container::-webkit-scrollbar-thumb {
+                background-color: #d1d5db;
+                border-radius: 4px;
+            }
+            .table th {
+                position: sticky;
+                top: 0;
+                background-color: #f9fafb;
+                z-index: 10;
+            }
+            .table tr {
+                transition: background-color 0.2s ease;
+            }
+            .table tr:hover {
+                background-color: #f3f4f6;
+            }
+            /* Loader melhorado */
+            .loader {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #3b82f6;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                animation: spin 0.8s linear infinite;
+                margin: 20px auto;
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            /* Status indicators */
+            .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 9999px;
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+            .status-badge.high {
+                background-color: #fee2e2;
+                color: #dc2626;
+            }
+            .status-badge.medium {
+                background-color: #fef3c7;
+                color: #d97706;
+            }
+            .status-badge.low {
+                background-color: #dcfce7;
+                color: #16a34a;
+            }
+            /* Notificações melhoradas */
+            .notification {
+                padding: 1rem;
+                margin-bottom: 0.5rem;
+                border-radius: 0.375rem;
+                background-color: white;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                animation: slideIn 0.3s ease-out;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .notification.success {
+                border-left: 4px solid #10b981;
+            }
+            .notification.error {
+                border-left: 4px solid #ef4444;
+            }
+            .notification.info {
+                border-left: 4px solid #3b82f6;
+            }
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        </style>
+    </head>
+    <body class="p-4 md:p-8">
+        <div id="notification-area" style="position: fixed; top: 10px; right: 10px; z-index: 1000; width: 300px"></div>
+        <div class="container mx-auto max-w-5xl">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Gestor de Desejos e Parcelamentos</h1>
 
-        <div class="flex border-b border-gray-300 bg-white rounded-t-lg shadow overflow-x-auto">
-            <button class="tab-button active" data-tooltip="Gerencie seus desejos de compra" onclick="openTab(event, 'desejos')">
-                <i class="fas fa-heart mr-2"></i>Lista de Desejos
-            </button>
-            <button class="tab-button" data-tooltip="Acompanhe seus parcelamentos" onclick="openTab(event, 'parcelamentos')">
-                <i class="fas fa-credit-card mr-2"></i>Parcelamentos
-            </button>
-            <button class="tab-button" data-tooltip="Veja o histórico de preços" onclick="openTab(event, 'historico')">
-                <i class="fas fa-history mr-2"></i>Histórico
-            </button>
-            <button class="tab-button" data-tooltip="Busque preços manualmente" onclick="openTab(event, 'consulta')">
-                <i class="fas fa-search mr-2"></i>Consulta
-            </button>
-            <button class="tab-button" data-tooltip="Configure suas preferências" onclick="openTab(event, 'configuracoes')">
-                <i class="fas fa-cog mr-2"></i>Configurações
-            </button>
-        </div>
-
-        <div id="desejos" class="tab-content active">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Minha Lista de Desejos</h2>
-            <div class="card">
-                <h3 class="text-xl font-medium text-gray-700 mb-3">Adicionar Novo Desejo</h3>
-                <form id="formDesejo">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group">
-                            <label for="desejoNome">Nome do Produto:</label>
-                            <input type="text" id="desejoNome" class="input-field" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="desejoUrl">URL (Opcional):</label>
-                            <input type="url" id="desejoUrl" class="input-field">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="desejoPrioridade">Prioridade:</label>
-                        <select id="desejoPrioridade" class="input-field">
-                            <option value="Baixa">Baixa</option>
-                            <option value="Média" selected>Média</option>
-                            <option value="Alta">Alta</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Adicionar à Lista</button>
-                </form>
-            </div>
-
-            <div class="card mt-6">
-                <h3 class="text-xl font-medium text-gray-700 mb-3">Itens na Lista</h3>
-                <div class="table-container">
-                    <table class="min-w-full table">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>URL</th>
-                                <th>Prioridade</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaDesejosBody">
-                            <tr>
-                                <td colspan="4" class="text-center text-gray-500 py-4">Nenhum item na lista de desejos ainda.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="parcelamentos" class="tab-content">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Meus Parcelamentos</h2>
-            <div class="card">
-                <h3 class="text-xl font-medium text-gray-700 mb-3">Registrar Novo Parcelamento</h3>
-                <form id="formParcelamento">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group">
-                            <label for="parcNome">Nome do Item:</label>
-                            <input type="text" id="parcNome" class="input-field" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="parcValorTotal">Valor Total (R$):</label>
-                            <input type="number" step="0.01" id="parcValorTotal" class="input-field" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="parcTotalParcelas">Nº Total de Parcelas:</label>
-                            <input type="number" id="parcTotalParcelas" class="input-field" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="parcParcelasPagas">Nº Parcelas Pagas:</label>
-                            <input type="number" id="parcParcelasPagas" class="input-field" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="parcDataInicio">Data de Início:</label>
-                        <input type="date" id="parcDataInicio" class="input-field" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Registrar Parcelamento</button>
-                </form>
-            </div>
-
-            <div class="card mt-6">
-                <h3 class="text-xl font-medium text-gray-700 mb-3">Parcelamentos Atuais</h3>
-                 <div class="table-container">
-                    <table class="min-w-full table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Valor Total</th>
-                                <th>Parcelas (Pagas/Total)</th>
-                                <th>Data Início</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaParcelamentosBody">
-                             <tr>
-                                <td colspan="5" class="text-center text-gray-500 py-4">Nenhum parcelamento registrado ainda.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="historico" class="tab-content">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Histórico de Cotações</h2>
-            <div class="card">
-                <p class="text-gray-600">Filtros e lista de cotações anteriores aparecerão aqui.</p>
-                <p class="text-gray-500 mt-2 italic">(Funcionalidade a ser implementada no aplicativo real)</p>
-                 <div class="table-container mt-4">
-                    <table class="min-w-full table">
-                        <thead>
-                            <tr>
-                                <th>Item Desejado</th>
-                                <th>Site</th>
-                                <th>Preço Encontrado</th>
-                                <th>Data da Busca</th>
-                                <th>Detalhes</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historicoCotacoesBody">
-                             <tr>
-                                <td colspan="5" class="text-center text-gray-500 py-4">Nenhum histórico de cotações.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="consulta" class="tab-content">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Consulta Manual de Ofertas</h2>
-            <div class="card text-center">
-                <p class="text-gray-600 mb-4">Clique no botão abaixo para buscar as melhores ofertas para todos os itens da sua lista de desejos agora.</p>
-                <button id="btnAtualizarOfertas" class="btn btn-primary text-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                    </svg>
-                    Atualizar Ofertas Agora
+            <div class="flex border-b border-gray-300 bg-white rounded-t-lg shadow overflow-x-auto">
+                <button
+                    class="tab-button active"
+                    data-tooltip="Gerencie seus desejos de compra"
+                    onclick="openTab(event, 'desejos')"
+                >
+                    <i class="fas fa-heart mr-2"></i>Lista de Desejos
                 </button>
-                <div id="consultaLoader" class="loader" style="display: none;"></div>
-                <p id="consultaMensagem" class="text-gray-500 mt-4 italic" style="display: none;"></p>
+                <button
+                    class="tab-button"
+                    data-tooltip="Acompanhe seus parcelamentos"
+                    onclick="openTab(event, 'parcelamentos')"
+                >
+                    <i class="fas fa-credit-card mr-2"></i>Parcelamentos
+                </button>
+                <button class="tab-button" data-tooltip="Veja o histórico de preços" onclick="openTab(event, 'historico')">
+                    <i class="fas fa-history mr-2"></i>Histórico
+                </button>
+                <button class="tab-button" data-tooltip="Busque preços manualmente" onclick="openTab(event, 'consulta')">
+                    <i class="fas fa-search mr-2"></i>Consulta
+                </button>
+                <button
+                    class="tab-button"
+                    data-tooltip="Configure suas preferências"
+                    onclick="openTab(event, 'configuracoes')"
+                >
+                    <i class="fas fa-cog mr-2"></i>Configurações
+                </button>
             </div>
-            <div id="resultadosConsultaContainer" class="card mt-6" style="display: none;">
-                <h3 class="text-xl font-medium text-gray-700 mb-3">Resultados da Busca</h3>
-                <div class="table-container">
-                    <table class="min-w-full table">
-                        <thead>
-                            <tr>
-                                <th>Item Desejado</th>
-                                <th>Site da Oferta</th>
-                                <th>Preço Simulado</th>
-                                <th>URL Original</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultadosConsultaBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
-        <div id="configuracoes" class="tab-content">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Configurações do Aplicativo</h2>
-            <div class="card">
-                <form id="formConfiguracoes">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label for="configCep">CEP para Frete:</label>
-                            <input type="text" id="configCep" class="input-field" placeholder="Ex: 00000-000">
+            <div id="desejos" class="tab-content active">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Minha Lista de Desejos</h2>
+                <div class="card">
+                    <h3 class="text-xl font-medium text-gray-700 mb-3">Adicionar Novo Desejo</h3>
+                    <form id="formDesejo">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label for="desejoNome">Nome do Produto:</label>
+                                <input type="text" id="desejoNome" class="input-field" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="desejoUrl">URL (Opcional):</label>
+                                <input type="url" id="desejoUrl" class="input-field" />
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="configLimiteParcela">Limite Parcela Mensal (R$):</label>
-                            <input type="number" step="0.01" id="configLimiteParcela" class="input-field" placeholder="Ex: 500.00">
-                        </div>
-                        <div class="form-group">
-                            <label for="configGatilhoFinalizar">Gatilho "Próximo de Finalizar" (parcelas restantes):</label>
-                            <input type="number" id="configGatilhoFinalizar" class="input-field" value="1">
-                        </div>
-                        <div class="form-group">
-                            <label for="configAgendamentoCron">Agendamento Noturno (Padrão Cron):</label>
-                            <input type="text" id="configAgendamentoCron" class="input-field" value="0 3 * * *">
-                        </div>
-                        <div class="form-group">
-                            <label for="configCriterioRanking">Critério de Ranking de Ofertas:</label>
-                            <select id="configCriterioRanking" class="input-field">
-                                <option value="custo">Menor Custo Total</option>
-                                <option value="prazo">Menor Prazo de Entrega</option>
-                                <option value="semjuros">Parcelamento Sem Juros</option>
+                            <label for="desejoPrioridade">Prioridade:</label>
+                            <select id="desejoPrioridade" class="input-field">
+                                <option value="Baixa">Baixa</option>
+                                <option value="Média" selected>Média</option>
+                                <option value="Alta">Alta</option>
                             </select>
                         </div>
+                        <button type="submit" class="btn btn-primary">Adicionar à Lista</button>
+                    </form>
+                </div>
+
+                <div class="card mt-6">
+                    <h3 class="text-xl font-medium text-gray-700 mb-3">Itens na Lista</h3>
+                    <div class="table-container">
+                        <table class="min-w-full table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>URL</th>
+                                    <th>Prioridade</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaDesejosBody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-gray-500 py-4">
+                                        Nenhum item na lista de desejos ainda.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="parcelamentos" class="tab-content">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Meus Parcelamentos</h2>
+                <div class="card">
+                    <h3 class="text-xl font-medium text-gray-700 mb-3">Registrar Novo Parcelamento</h3>
+                    <form id="formParcelamento">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label for="parcNome">Nome do Item:</label>
+                                <input type="text" id="parcNome" class="input-field" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="parcValorTotal">Valor Total (R$):</label>
+                                <input type="number" step="0.01" id="parcValorTotal" class="input-field" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="parcTotalParcelas">Nº Total de Parcelas:</label>
+                                <input type="number" id="parcTotalParcelas" class="input-field" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="parcParcelasPagas">Nº Parcelas Pagas:</label>
+                                <input type="number" id="parcParcelasPagas" class="input-field" required />
+                            </div>
+                        </div>
                         <div class="form-group">
-                            <label for="configConcurrency">Concurrency Scraper (buscas paralelas):</label>
-                            <input type="number" id="configConcurrency" class="input-field" value="2" min="1" max="10">
+                            <label for="parcDataInicio">Data de Início:</label>
+                            <input type="date" id="parcDataInicio" class="input-field" required />
                         </div>
+                        <button type="submit" class="btn btn-primary">Registrar Parcelamento</button>
+                    </form>
+                </div>
+
+                <div class="card mt-6">
+                    <h3 class="text-xl font-medium text-gray-700 mb-3">Parcelamentos Atuais</h3>
+                    <div class="table-container">
+                        <table class="min-w-full table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Valor Total</th>
+                                    <th>Parcelas (Pagas/Total)</th>
+                                    <th>Data Início</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaParcelamentosBody">
+                                <tr>
+                                    <td colspan="5" class="text-center text-gray-500 py-4">
+                                        Nenhum parcelamento registrado ainda.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="mt-6 space-y-4">
-                        <div class="flex items-center">
-                            <input id="configRodarGatilho" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked>
-                            <label for="configRodarGatilho" class="ml-2 block text-sm text-gray-900">Rodar busca ao "Próximo de Finalizar" parcelamento</label>
+                </div>
+            </div>
+
+            <div id="historico" class="tab-content">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Histórico de Cotações</h2>
+                <div class="card">
+                    <p class="text-gray-600">Filtros e lista de cotações anteriores aparecerão aqui.</p>
+                    <p class="text-gray-500 mt-2 italic">(Funcionalidade a ser implementada no aplicativo real)</p>
+                    <div class="table-container mt-4">
+                        <table class="min-w-full table">
+                            <thead>
+                                <tr>
+                                    <th>Item Desejado</th>
+                                    <th>Site</th>
+                                    <th>Preço Encontrado</th>
+                                    <th>Data da Busca</th>
+                                    <th>Detalhes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historicoCotacoesBody">
+                                <tr>
+                                    <td colspan="5" class="text-center text-gray-500 py-4">
+                                        Nenhum histórico de cotações.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="consulta" class="tab-content">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Consulta Manual de Ofertas</h2>
+                <div class="card text-center">
+                    <p class="text-gray-600 mb-4">
+                        Clique no botão abaixo para buscar as melhores ofertas para todos os itens da sua lista de desejos
+                        agora.
+                    </p>
+                    <button id="btnAtualizarOfertas" class="btn btn-primary text-lg">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 inline-block mr-2"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                        Atualizar Ofertas Agora
+                    </button>
+                    <div id="consultaLoader" class="loader" style="display: none"></div>
+                    <p id="consultaMensagem" class="text-gray-500 mt-4 italic" style="display: none"></p>
+                </div>
+                <div id="resultadosConsultaContainer" class="card mt-6" style="display: none">
+                    <h3 class="text-xl font-medium text-gray-700 mb-3">Resultados da Busca</h3>
+                    <div class="table-container">
+                        <table class="min-w-full table">
+                            <thead>
+                                <tr>
+                                    <th>Item Desejado</th>
+                                    <th>Site da Oferta</th>
+                                    <th>Preço Simulado</th>
+                                    <th>URL Original</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultadosConsultaBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="configuracoes" class="tab-content">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Configurações do Aplicativo</h2>
+                <div class="card">
+                    <form id="formConfiguracoes">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="configCep">CEP para Frete:</label>
+                                <input type="text" id="configCep" class="input-field" placeholder="Ex: 00000-000" />
+                            </div>
+                            <div class="form-group">
+                                <label for="configLimiteParcela">Limite Parcela Mensal (R$):</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    id="configLimiteParcela"
+                                    class="input-field"
+                                    placeholder="Ex: 500.00"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="configGatilhoFinalizar"
+                                    >Gatilho "Próximo de Finalizar" (parcelas restantes):</label
+                                >
+                                <input type="number" id="configGatilhoFinalizar" class="input-field" value="1" />
+                            </div>
+                            <div class="form-group">
+                                <label for="configAgendamentoCron">Agendamento Noturno (Padrão Cron):</label>
+                                <input type="text" id="configAgendamentoCron" class="input-field" value="0 3 * * *" />
+                            </div>
+                            <div class="form-group">
+                                <label for="configCriterioRanking">Critério de Ranking de Ofertas:</label>
+                                <select id="configCriterioRanking" class="input-field">
+                                    <option value="custo">Menor Custo Total</option>
+                                    <option value="prazo">Menor Prazo de Entrega</option>
+                                    <option value="semjuros">Parcelamento Sem Juros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="configConcurrency">Concurrency Scraper (buscas paralelas):</label>
+                                <input type="number" id="configConcurrency" class="input-field" value="2" min="1" max="10" />
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <input id="configRodarAgendada" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked>
-                            <label for="configRodarAgendada" class="ml-2 block text-sm text-gray-900">Rodar busca agendada (noturna)</label>
+                        <div class="mt-6 space-y-4">
+                            <div class="flex items-center">
+                                <input
+                                    id="configRodarGatilho"
+                                    type="checkbox"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    checked
+                                />
+                                <label for="configRodarGatilho" class="ml-2 block text-sm text-gray-900"
+                                    >Rodar busca ao "Próximo de Finalizar" parcelamento</label
+                                >
+                            </div>
+                            <div class="flex items-center">
+                                <input
+                                    id="configRodarAgendada"
+                                    type="checkbox"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    checked
+                                />
+                                <label for="configRodarAgendada" class="ml-2 block text-sm text-gray-900"
+                                    >Rodar busca agendada (noturna)</label
+                                >
+                            </div>
                         </div>
-                    </div>
-                    <div class="mt-8">
-                        <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">Salvar Configurações</button>
-                    </div>
-                </form>
-                 <p class="text-gray-500 mt-6 italic">
-                    Nota: Em um aplicativo Electron real, estas configurações seriam salvas em um arquivo local ou banco de dados SQLite e carregadas na inicialização.
-                    As funcionalidades de scraping, notificações e agendamento seriam gerenciadas pelo processo principal do Electron usando bibliotecas como Playwright, node-cron e a API de notificações nativa.
-                </p>
+                        <div class="mt-8">
+                            <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">
+                                Salvar Configurações
+                            </button>
+                        </div>
+                    </form>
+                    <p class="text-gray-500 mt-6 italic">
+                        Nota: Em um aplicativo Electron real, estas configurações seriam salvas em um arquivo local ou banco
+                        de dados SQLite e carregadas na inicialização. As funcionalidades de scraping, notificações e
+                        agendamento seriam gerenciadas pelo processo principal do Electron usando bibliotecas como Playwright,
+                        node-cron e a API de notificações nativa.
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        // --- Elementos do DOM ---
-        const formDesejo = document.getElementById('formDesejo');
-        const listaDesejosBody = document.getElementById('listaDesejosBody');
-        const formParcelamento = document.getElementById('formParcelamento');
-        const listaParcelamentosBody = document.getElementById('listaParcelamentosBody');
-        const historicoCotacoesBody = document.getElementById('historicoCotacoesBody');
+        <script>
+            // --- Elementos do DOM ---
+            const formDesejo = document.getElementById('formDesejo');
+            const listaDesejosBody = document.getElementById('listaDesejosBody');
+            const formParcelamento = document.getElementById('formParcelamento');
+            const listaParcelamentosBody = document.getElementById('listaParcelamentosBody');
+            const historicoCotacoesBody = document.getElementById('historicoCotacoesBody');
 
-        // Elementos da Consulta Manual
-        const btnAtualizarOfertas = document.getElementById('btnAtualizarOfertas');
-        const consultaLoader = document.getElementById('consultaLoader');
-        const consultaMensagem = document.getElementById('consultaMensagem');
-        const resultadosConsultaContainer = document.getElementById('resultadosConsultaContainer');
-        const resultadosConsultaBody = document.getElementById('resultadosConsultaBody');
+            // Elementos da Consulta Manual
+            const btnAtualizarOfertas = document.getElementById('btnAtualizarOfertas');
+            const consultaLoader = document.getElementById('consultaLoader');
+            const consultaMensagem = document.getElementById('consultaMensagem');
+            const resultadosConsultaContainer = document.getElementById('resultadosConsultaContainer');
+            const resultadosConsultaBody = document.getElementById('resultadosConsultaBody');
 
-        // --- Notification System ---
-        function showNotification(message, type = 'info') {
-            const area = document.getElementById('notification-area');
-            const notification = document.createElement('div');
-            notification.className = `p-3 mb-2 rounded text-white ${type === 'error' ? 'bg-red-500' : (type === 'success' ? 'bg-green-500' : 'bg-blue-500')}`;
-            notification.textContent = message;
-            
-            area.appendChild(notification);
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300); // Allow fade out
-            }, 5000);
-        }
+            // --- Notification System ---
+            function showNotification(message, type = 'info') {
+                const area = document.getElementById('notification-area');
+                const notification = document.createElement('div');
+                notification.className = `p-3 mb-2 rounded text-white ${
+                    type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+                }`;
+                notification.textContent = message;
 
-        // --- Funções de Tab ---
-        function openTab(event, tabName) {
-            let i, tabcontent, tabbuttons;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-                tabcontent[i].classList.remove("active");
+                area.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => notification.remove(), 300); // Allow fade out
+                }, 5000);
             }
-            tabbuttons = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tabbuttons.length; i++) {
-                tabbuttons[i].classList.remove("active");
-            }
-            document.getElementById(tabName).style.display = "block";
-            document.getElementById(tabName).classList.add("active");
-            event.currentTarget.classList.add("active");
-        }
 
-        // --- Lógica para Lista de Desejos ---
-        async function renderListaDesejos() {
-            try {
-                const response = await window.electronAPI.getDesejos();
-                if (response.success) {
-                    const desejos = response.data;
-                    listaDesejosBody.innerHTML = ''; // Clear existing
-                    if (desejos.length === 0) {
-                        listaDesejosBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">Nenhum item na lista de desejos ainda.</td></tr>';
-                        return;
-                    }
-                    desejos.forEach(item => {
-                        const row = listaDesejosBody.insertRow();
-                        row.insertCell().textContent = item.nome;
-                        
-                        const urlCell = row.insertCell();
-                        if (item.url) {
-                            const link = document.createElement('a');
-                            link.href = '#';
-                            link.textContent = item.url.length > 30 ? item.url.substring(0,30)+'...' : item.url;
-                            link.className = 'text-blue-500 hover:underline';
-                            link.onclick = (e) => {
-                                e.preventDefault();
-                                window.electronAPI.openExternalLink(item.url);
-                            };
-                            urlCell.appendChild(link);
-                        } else {
-                            urlCell.textContent = '-';
+            // --- Funções de Tab ---
+            function openTab(event, tabName) {
+                let i, tabcontent, tabbuttons;
+                tabcontent = document.getElementsByClassName('tab-content');
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = 'none';
+                    tabcontent[i].classList.remove('active');
+                }
+                tabbuttons = document.getElementsByClassName('tab-button');
+                for (i = 0; i < tabbuttons.length; i++) {
+                    tabbuttons[i].classList.remove('active');
+                }
+                document.getElementById(tabName).style.display = 'block';
+                document.getElementById(tabName).classList.add('active');
+                event.currentTarget.classList.add('active');
+            }
+
+            // --- Lógica para Lista de Desejos ---
+            async function renderListaDesejos() {
+                try {
+                    const response = await window.electronAPI.getDesejos();
+                    if (response.success) {
+                        const desejos = response.data;
+                        listaDesejosBody.innerHTML = ''; // Clear existing
+                        if (desejos.length === 0) {
+                            listaDesejosBody.innerHTML =
+                                '<tr><td colspan="4" class="text-center text-gray-500 py-4">Nenhum item na lista de desejos ainda.</td></tr>';
+                            return;
                         }
-                        
-                        row.insertCell().textContent = item.prioridade;
-                        
-                        const actionsCell = row.insertCell();
-                        const removeButton = document.createElement('button');
-                        removeButton.className = 'text-red-500 hover:text-red-700 text-sm';
-                        removeButton.textContent = 'Remover';
-                        removeButton.onclick = () => removerDesejo(item.id);
-                        actionsCell.appendChild(removeButton);
-                    });
-                } else {
-                    showNotification(`Erro ao buscar desejos: ${response.error}`, 'error');
-                    listaDesejosBody.innerHTML = '<tr><td colspan="4" class="text-center text-red-500 py-4">Erro ao carregar desejos.</td></tr>';
-                }
-            } catch (error) {
-                showNotification(`Erro inesperado ao buscar desejos: ${error.message}`, 'error');
-                listaDesejosBody.innerHTML = '<tr><td colspan="4" class="text-center text-red-500 py-4">Erro grave ao carregar desejos.</td></tr>';
-            }
-        }
+                        desejos.forEach((item) => {
+                            const row = listaDesejosBody.insertRow();
+                            row.insertCell().textContent = item.nome;
 
-        formDesejo.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const nome = document.getElementById('desejoNome').value;
-            const url = document.getElementById('desejoUrl').value;
-            const prioridade = document.getElementById('desejoPrioridade').value;
+                            const urlCell = row.insertCell();
+                            if (item.url) {
+                                const link = document.createElement('a');
+                                link.href = '#';
+                                link.textContent =
+                                    item.url.length > 30 ? item.url.substring(0, 30) + '...' : item.url;
+                                link.className = 'text-blue-500 hover:underline';
+                                link.onclick = (e) => {
+                                    e.preventDefault();
+                                    window.electronAPI.openExternalLink(item.url);
+                                };
+                                urlCell.appendChild(link);
+                            } else {
+                                urlCell.textContent = '-';
+                            }
 
-            if (nome.trim() === '') {
-                showNotification('O nome do produto não pode estar vazio.', 'error');
-                return;
-            }
+                            row.insertCell().textContent = item.prioridade;
 
-            try {
-                const response = await window.electronAPI.addDesejo({ nome, url, prioridade });
-                if (response.success) {
-                    showNotification('Desejo adicionado com sucesso!', 'success');
-                    renderListaDesejos();
-                    formDesejo.reset();
-                } else {
-                    showNotification(`Erro ao adicionar desejo: ${response.error}`, 'error');
-                }
-            } catch (error) {
-                showNotification(`Erro inesperado ao adicionar desejo: ${error.message}`, 'error');
-            }
-        });
-
-        async function removerDesejo(id) {
-            try {
-                const response = await window.electronAPI.removeDesejo(id);
-                if (response.success) {
-                    showNotification('Desejo removido com sucesso!', 'success');
-                    renderListaDesejos();
-                } else {
-                    showNotification(`Erro ao remover desejo: ${response.error}`, 'error');
-                }
-            } catch (error) {
-                showNotification(`Erro inesperado ao remover desejo: ${error.message}`, 'error');
-            }
-        }
-
-        // --- Lógica para Parcelamentos ---
-        async function renderListaParcelamentos() {
-            try {
-                const response = await window.electronAPI.getParcelamentos();
-                if (response.success) {
-                    const parcelamentos = response.data;
-                    listaParcelamentosBody.innerHTML = '';
-                    if (parcelamentos.length === 0) {
-                        listaParcelamentosBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">Nenhum parcelamento registrado ainda.</td></tr>';
-                        return;
+                            const actionsCell = row.insertCell();
+                            const removeButton = document.createElement('button');
+                            removeButton.className = 'text-red-500 hover:text-red-700 text-sm';
+                            removeButton.textContent = 'Remover';
+                            removeButton.onclick = () => removerDesejo(item.id);
+                            actionsCell.appendChild(removeButton);
+                        });
+                    } else {
+                        showNotification(`Erro ao buscar desejos: ${response.error}`, 'error');
+                        listaDesejosBody.innerHTML =
+                            '<tr><td colspan="4" class="text-center text-red-500 py-4">Erro ao carregar desejos.</td></tr>';
                     }
-                    parcelamentos.forEach(item => {
-                        const row = listaParcelamentosBody.insertRow();
-                        row.insertCell().textContent = item.nome_item;
-                        row.insertCell().textContent = `R$ ${parseFloat(item.valor_total).toFixed(2)}`;
-                        row.insertCell().textContent = `${item.parcelas_pagas}/${item.total_parcelas}`;
-                        
-                        let dataFormatada = '-';
-                        if (item.data_inicio) { // data_inicio is YYYY-MM-DD from DB
-                            const [ano, mes, dia] = item.data_inicio.split('-');
-                            dataFormatada = `${dia}/${mes}/${ano}`;
-                        }
-                        row.insertCell().textContent = dataFormatada;
-                        
-                        const actionsCell = row.insertCell();
-                        const removeButton = document.createElement('button');
-                        removeButton.className = 'text-red-500 hover:text-red-700 text-sm';
-                        removeButton.textContent = 'Remover';
-                        removeButton.onclick = () => removerParcelamento(item.id);
-                        actionsCell.appendChild(removeButton);
-                    });
-                } else {
-                    showNotification(`Erro ao buscar parcelamentos: ${response.error}`, 'error');
-                     listaParcelamentosBody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro ao carregar parcelamentos.</td></tr>';
+                } catch (error) {
+                    showNotification(`Erro inesperado ao buscar desejos: ${error.message}`, 'error');
+                    listaDesejosBody.innerHTML =
+                        '<tr><td colspan="4" class="text-center text-red-500 py-4">Erro grave ao carregar desejos.</td></tr>';
                 }
-            } catch (error) {
-                showNotification(`Erro inesperado ao buscar parcelamentos: ${error.message}`, 'error');
-                listaParcelamentosBody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro grave ao carregar parcelamentos.</td></tr>';
-            }
-        }
-
-        formParcelamento.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const nome_item = document.getElementById('parcNome').value;
-            const valor_total = parseFloat(document.getElementById('parcValorTotal').value);
-            const total_parcelas = parseInt(document.getElementById('parcTotalParcelas').value);
-            const parcelas_pagas = parseInt(document.getElementById('parcParcelasPagas').value);
-            const data_inicio = document.getElementById('parcDataInicio').value;
-
-            if (!nome_item || isNaN(valor_total) || isNaN(total_parcelas) || isNaN(parcelas_pagas) || !data_inicio) {
-                 showNotification('Por favor, preencha todos os campos do parcelamento com valores válidos.', 'error');
-                 return;
-            }
-            if (parcelas_pagas > total_parcelas) {
-                showNotification('O número de parcelas pagas não pode ser maior que o número total de parcelas.', 'error');
-                return;
             }
 
-            try {
-                const response = await window.electronAPI.addParcelamento({ nome_item, valor_total, total_parcelas, parcelas_pagas, data_inicio });
-                if (response.success) {
-                    showNotification('Parcelamento adicionado com sucesso!', 'success');
-                    renderListaParcelamentos();
-                    formParcelamento.reset();
-                } else {
-                    showNotification(`Erro ao adicionar parcelamento: ${response.error}`, 'error');
-                }
-            } catch (error) {
-                showNotification(`Erro inesperado ao adicionar parcelamento: ${error.message}`, 'error');
-            }
-        });
+            formDesejo.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const nome = document.getElementById('desejoNome').value;
+                const url = document.getElementById('desejoUrl').value;
+                const prioridade = document.getElementById('desejoPrioridade').value;
 
-        async function removerParcelamento(id) {
-            try {
-                const response = await window.electronAPI.removeParcelamento(id);
-                if (response.success) {
-                    showNotification('Parcelamento removido com sucesso!', 'success');
-                    renderListaParcelamentos();
-                } else {
-                    showNotification(`Erro ao remover parcelamento: ${response.error}`, 'error');
-                }
-            } catch (error) {
-                showNotification(`Erro inesperado ao remover parcelamento: ${error.message}`, 'error');
-            }
-        }
-
-        // --- Lógica para Consulta Manual ---
-        btnAtualizarOfertas.addEventListener('click', iniciarConsultaManual);
-
-        async function iniciarConsultaManual() {
-            resultadosConsultaBody.innerHTML = ''; 
-            resultadosConsultaContainer.style.display = 'none';
-            consultaMensagem.style.display = 'none';
-            consultaLoader.style.display = 'block';
-            btnAtualizarOfertas.disabled = true;
-
-            try {
-                const desejosResponse = await window.electronAPI.getDesejos();
-                if (!desejosResponse.success || !desejosResponse.data || desejosResponse.data.length === 0) {
-                    consultaMensagem.textContent = 'Sua lista de desejos está vazia ou houve um erro ao buscá-la. Adicione itens para buscar ofertas.';
-                    consultaMensagem.style.display = 'block';
-                    consultaLoader.style.display = 'none';
-                    btnAtualizarOfertas.disabled = false;
+                if (nome.trim() === '') {
+                    showNotification('O nome do produto não pode estar vazio.', 'error');
                     return;
                 }
-                
-                showNotification('Buscando ofertas... Isso pode levar um momento.', 'info');
-                const ofertasResponse = await window.electronAPI.buscarOfertasManualmente(desejosResponse.data);
 
-                if (ofertasResponse.success) {
-                    renderizarResultadosConsulta(ofertasResponse.data);
-                    if (ofertasResponse.data.length > 0) {
-                        resultadosConsultaContainer.style.display = 'block';
-                        consultaMensagem.style.display = 'none';
-                        showNotification(`Busca concluída. ${ofertasResponse.data.length} ofertas encontradas.`, 'success');
-                        await renderHistoricoCotacoes(); // Update history tab
+                try {
+                    const response = await window.electronAPI.addDesejo({ nome, url, prioridade });
+                    if (response.success) {
+                        showNotification('Desejo adicionado com sucesso!', 'success');
+                        renderListaDesejos();
+                        formDesejo.reset();
                     } else {
-                        consultaMensagem.textContent = 'Nenhuma oferta encontrada para os itens da sua lista.';
-                        consultaMensagem.style.display = 'block';
-                        showNotification('Nenhuma oferta encontrada.', 'info');
+                        showNotification(`Erro ao adicionar desejo: ${response.error}`, 'error');
                     }
-                } else {
-                    showNotification(`Erro ao buscar ofertas: ${ofertasResponse.error}`, 'error');
-                    consultaMensagem.textContent = `Erro ao buscar ofertas: ${ofertasResponse.error}`;
-                    consultaMensagem.style.display = 'block';
-                }
-            } catch (error) {
-                showNotification(`Erro inesperado ao buscar ofertas: ${error.message}`, 'error');
-                consultaMensagem.textContent = `Erro inesperado: ${error.message}`;
-                consultaMensagem.style.display = 'block';
-            } finally {
-                consultaLoader.style.display = 'none';
-                btnAtualizarOfertas.disabled = false;
-            }
-        }
-
-        function renderizarResultadosConsulta(resultados) {
-            resultadosConsultaBody.innerHTML = '';
-            if (!resultados || resultados.length === 0) {
-                resultadosConsultaBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">Nenhuma oferta encontrada.</td></tr>';
-                return;
-            }
-            resultados.forEach(resultado => {
-                const row = resultadosConsultaBody.insertRow();
-                row.insertCell().textContent = resultado.desejo_nome;
-                row.insertCell().textContent = resultado.site;
-                row.insertCell().textContent = `R$ ${parseFloat(resultado.preco).toFixed(2)}`;
-                
-                const urlCell = row.insertCell();
-                if (resultado.url_oferta) {
-                    const link = document.createElement('a');
-                    link.href = '#';
-                    link.textContent = resultado.url_oferta.length > 30 ? resultado.url_oferta.substring(0,30)+'...' : resultado.url_oferta;
-                    link.className = 'text-blue-500 hover:underline';
-                    link.onclick = (e) => {
-                        e.preventDefault();
-                        window.electronAPI.openExternalLink(resultado.url_oferta);
-                    };
-                    urlCell.appendChild(link);
-                } else {
-                    urlCell.textContent = '-';
+                } catch (error) {
+                    showNotification(`Erro inesperado ao adicionar desejo: ${error.message}`, 'error');
                 }
             });
-        }
 
-        // --- Lógica para Histórico ---
-        async function renderHistoricoCotacoes() {
-            try {
-                const response = await window.electronAPI.getHistorico(null); // Filtro é null por enquanto
-                if (response.success) {
-                    const historico = response.data;
-                    historicoCotacoesBody.innerHTML = '';
-                    if (historico.length === 0) {
-                        historicoCotacoesBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">Nenhum histórico de cotações.</td></tr>';
+            async function removerDesejo(id) {
+                try {
+                    const response = await window.electronAPI.removeDesejo(id);
+                    if (response.success) {
+                        showNotification('Desejo removido com sucesso!', 'success');
+                        renderListaDesejos();
+                    } else {
+                        showNotification(`Erro ao remover desejo: ${response.error}`, 'error');
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao remover desejo: ${error.message}`, 'error');
+                }
+            }
+
+            // --- Lógica para Parcelamentos ---
+            async function renderListaParcelamentos() {
+                try {
+                    const response = await window.electronAPI.getParcelamentos();
+                    if (response.success) {
+                        const parcelamentos = response.data;
+                        listaParcelamentosBody.innerHTML = '';
+                        if (parcelamentos.length === 0) {
+                            listaParcelamentosBody.innerHTML =
+                                '<tr><td colspan="5" class="text-center text-gray-500 py-4">Nenhum parcelamento registrado ainda.</td></tr>';
+                            return;
+                        }
+                        parcelamentos.forEach((item) => {
+                            const row = listaParcelamentosBody.insertRow();
+                            row.insertCell().textContent = item.nome_item;
+                            row.insertCell().textContent = `R$ ${parseFloat(item.valor_total).toFixed(2)}`;
+                            row.insertCell().textContent = `${item.parcelas_pagas}/${item.total_parcelas}`;
+
+                            let dataFormatada = '-';
+                            if (item.data_inicio) {
+                                // data_inicio is YYYY-MM-DD from DB
+                                const [ano, mes, dia] = item.data_inicio.split('-');
+                                dataFormatada = `${dia}/${mes}/${ano}`;
+                            }
+                            row.insertCell().textContent = dataFormatada;
+
+                            const actionsCell = row.insertCell();
+                            const removeButton = document.createElement('button');
+                            removeButton.className = 'text-red-500 hover:text-red-700 text-sm';
+                            removeButton.textContent = 'Remover';
+                            removeButton.onclick = () => removerParcelamento(item.id);
+                            actionsCell.appendChild(removeButton);
+                        });
+                    } else {
+                        showNotification(`Erro ao buscar parcelamentos: ${response.error}`, 'error');
+                        listaParcelamentosBody.innerHTML =
+                            '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro ao carregar parcelamentos.</td></tr>';
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao buscar parcelamentos: ${error.message}`, 'error');
+                    listaParcelamentosBody.innerHTML =
+                        '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro grave ao carregar parcelamentos.</td></tr>';
+                }
+            }
+
+            formParcelamento.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const nome_item = document.getElementById('parcNome').value;
+                const valor_total = parseFloat(document.getElementById('parcValorTotal').value);
+                const total_parcelas = parseInt(document.getElementById('parcTotalParcelas').value);
+                const parcelas_pagas = parseInt(document.getElementById('parcParcelasPagas').value);
+                const data_inicio = document.getElementById('parcDataInicio').value;
+
+                if (!nome_item || isNaN(valor_total) || isNaN(total_parcelas) || isNaN(parcelas_pagas) || !data_inicio) {
+                    showNotification('Por favor, preencha todos os campos do parcelamento com valores válidos.', 'error');
+                    return;
+                }
+                if (parcelas_pagas > total_parcelas) {
+                    showNotification(
+                        'O número de parcelas pagas não pode ser maior que o número total de parcelas.',
+                        'error'
+                    );
+                    return;
+                }
+
+                try {
+                    const response = await window.electronAPI.addParcelamento({
+                        nome_item,
+                        valor_total,
+                        total_parcelas,
+                        parcelas_pagas,
+                        data_inicio,
+                    });
+                    if (response.success) {
+                        showNotification('Parcelamento adicionado com sucesso!', 'success');
+                        renderListaParcelamentos();
+                        formParcelamento.reset();
+                    } else {
+                        showNotification(`Erro ao adicionar parcelamento: ${response.error}`, 'error');
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao adicionar parcelamento: ${error.message}`, 'error');
+                }
+            });
+
+            async function removerParcelamento(id) {
+                try {
+                    const response = await window.electronAPI.removeParcelamento(id);
+                    if (response.success) {
+                        showNotification('Parcelamento removido com sucesso!', 'success');
+                        renderListaParcelamentos();
+                    } else {
+                        showNotification(`Erro ao remover parcelamento: ${response.error}`, 'error');
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao remover parcelamento: ${error.message}`, 'error');
+                }
+            }
+
+            // --- Lógica para Consulta Manual ---
+            btnAtualizarOfertas.addEventListener('click', iniciarConsultaManual);
+
+            async function iniciarConsultaManual() {
+                resultadosConsultaBody.innerHTML = '';
+                resultadosConsultaContainer.style.display = 'none';
+                consultaMensagem.style.display = 'none';
+                consultaLoader.style.display = 'block';
+                btnAtualizarOfertas.disabled = true;
+
+                try {
+                    const desejosResponse = await window.electronAPI.getDesejos();
+                    if (!desejosResponse.success || !desejosResponse.data || desejosResponse.data.length === 0) {
+                        consultaMensagem.textContent =
+                            'Sua lista de desejos está vazia ou houve um erro ao buscá-la. Adicione itens para buscar ofertas.';
+                        consultaMensagem.style.display = 'block';
+                        consultaLoader.style.display = 'none';
+                        btnAtualizarOfertas.disabled = false;
                         return;
                     }
-                    historico.forEach(item => {
-                        const row = historicoCotacoesBody.insertRow(); // Insere no final, mas backend ordena por data_busca DESC
-                        row.insertCell().textContent = item.desejo_nome;
-                        row.insertCell().textContent = item.site;
-                        row.insertCell().textContent = `R$ ${parseFloat(item.preco).toFixed(2)}`;
-                        
-                        let dataFormatada = new Date(item.data_busca).toLocaleString('pt-BR');
-                        row.insertCell().textContent = dataFormatada;
-                        
-                        const detailsCell = row.insertCell();
-                        const viewButton = document.createElement('button');
-                        viewButton.className = 'text-blue-500 hover:underline text-sm';
-                        viewButton.textContent = 'Ver Oferta';
-                        if (item.url_oferta) {
-                            viewButton.onclick = (e) => {
-                                e.preventDefault();
-                                window.electronAPI.openExternalLink(item.url_oferta);
-                            };
+
+                    showNotification('Buscando ofertas... Isso pode levar um momento.', 'info');
+                    const ofertasResponse = await window.electronAPI.buscarOfertasManualmente(desejosResponse.data);
+
+                    if (ofertasResponse.success) {
+                        renderizarResultadosConsulta(ofertasResponse.data);
+                        if (ofertasResponse.data.length > 0) {
+                            resultadosConsultaContainer.style.display = 'block';
+                            consultaMensagem.style.display = 'none';
+                            showNotification(
+                                `Busca concluída. ${ofertasResponse.data.length} ofertas encontradas.`,
+                                'success'
+                            );
+                            await renderHistoricoCotacoes(); // Update history tab
                         } else {
-                            viewButton.disabled = true;
-                            viewButton.title = "URL da oferta não disponível";
+                            consultaMensagem.textContent = 'Nenhuma oferta encontrada para os itens da sua lista.';
+                            consultaMensagem.style.display = 'block';
+                            showNotification('Nenhuma oferta encontrada.', 'info');
                         }
-                        detailsCell.appendChild(viewButton);
-                        // Poderia adicionar mais detalhes, como `item.detalhes_parcelamento_se_houver`
-                    });
-                } else {
-                    showNotification(`Erro ao buscar histórico: ${response.error}`, 'error');
-                    historicoCotacoesBody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro ao carregar histórico.</td></tr>';
+                    } else {
+                        showNotification(`Erro ao buscar ofertas: ${ofertasResponse.error}`, 'error');
+                        consultaMensagem.textContent = `Erro ao buscar ofertas: ${ofertasResponse.error}`;
+                        consultaMensagem.style.display = 'block';
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao buscar ofertas: ${error.message}`, 'error');
+                    consultaMensagem.textContent = `Erro inesperado: ${error.message}`;
+                    consultaMensagem.style.display = 'block';
+                } finally {
+                    consultaLoader.style.display = 'none';
+                    btnAtualizarOfertas.disabled = false;
                 }
-            } catch (error) {
-                 showNotification(`Erro inesperado ao buscar histórico: ${error.message}`, 'error');
-                 historicoCotacoesBody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro grave ao carregar histórico.</td></tr>';
             }
-        }
 
-        // --- Lógica para Configurações ---
-        async function renderConfiguracoes() {
-            try {
-                const response = await window.electronAPI.getConfiguracoes();
-                if (response.success) {
-                    const configs = response.data;
-                    document.getElementById('configCep').value = configs.cep || '';
-                    document.getElementById('configLimiteParcela').value = configs.limiteParcela || '';
-                    document.getElementById('configGatilhoFinalizar').value = configs.gatilhoFinalizar || 1;
-                    document.getElementById('configAgendamentoCron').value = configs.agendamentoCron || '0 3 * * *';
-                    document.getElementById('configCriterioRanking').value = configs.criterioRanking || 'custo';
-                    document.getElementById('configConcurrency').value = configs.concurrency || 2;
-                    document.getElementById('configRodarGatilho').checked = !!configs.rodarGatilho;
-                    document.getElementById('configRodarAgendada').checked = !!configs.rodarAgendada;
-                } else {
-                    showNotification(`Erro ao carregar configurações: ${response.error}`, 'error');
+            function renderizarResultadosConsulta(resultados) {
+                resultadosConsultaBody.innerHTML = '';
+                if (!resultados || resultados.length === 0) {
+                    resultadosConsultaBody.innerHTML =
+                        '<tr><td colspan="4" class="text-center text-gray-500 py-4">Nenhuma oferta encontrada.</td></tr>';
+                    return;
                 }
-            } catch (error) {
-                showNotification(`Erro inesperado ao carregar configurações: ${error.message}`, 'error');
-            }
-        }
-        
-        // Renomeado de salvarConfiguracoesSimulado para salvarConfiguracoes
-        async function salvarConfiguracoes() {
-            const configsObject = {
-                cep: document.getElementById('configCep').value,
-                limiteParcela: parseFloat(document.getElementById('configLimiteParcela').value) || 0,
-                gatilhoFinalizar: parseInt(document.getElementById('configGatilhoFinalizar').value) || 1,
-                agendamentoCron: document.getElementById('configAgendamentoCron').value,
-                criterioRanking: document.getElementById('configCriterioRanking').value,
-                concurrency: parseInt(document.getElementById('configConcurrency').value) || 2,
-                rodarGatilho: document.getElementById('configRodarGatilho').checked,
-                rodarAgendada: document.getElementById('configRodarAgendada').checked
-            };
+                resultados.forEach((resultado) => {
+                    const row = resultadosConsultaBody.insertRow();
+                    row.insertCell().textContent = resultado.desejo_nome;
+                    row.insertCell().textContent = resultado.site;
+                    row.insertCell().textContent = `R$ ${parseFloat(resultado.preco).toFixed(2)}`;
 
-            try {
-                const response = await window.electronAPI.saveConfiguracoes(configsObject);
-                if (response.success) {
-                    showNotification('Configurações salvas com sucesso!', 'success');
-                } else {
-                    showNotification(`Erro ao salvar configurações: ${response.error}`, 'error');
-                }
-            } catch (error) {
-                showNotification(`Erro inesperado ao salvar configurações: ${error.message}`, 'error');
-            }
-        }
-        // Attach to button - assuming the button's onclick was `salvarConfiguracoesSimulado()`
-        // If the button has an ID, it's better to add event listener in DOMContentLoaded
-        // For now, this function is globally available if HTML calls salvarConfiguracoes()
-
-
-        // --- Inicialização ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            await renderListaDesejos();
-            await renderListaParcelamentos();
-            await renderHistoricoCotacoes();
-            await renderConfiguracoes();
-            
-            // Ativar a primeira aba por padrão
-            if(document.querySelector('.tab-button')) {
-                 document.querySelector('.tab-button').click();
-            }
-
-            // Setup notification listener from main process
-            if (window.electronAPI && window.electronAPI.onNotification) {
-                window.electronAPI.onNotification((payload) => {
-                    console.log('Notification from main:', payload);
-                    showNotification(`${payload.message}`, payload.type);
+                    const urlCell = row.insertCell();
+                    if (resultado.url_oferta) {
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.textContent =
+                            resultado.url_oferta.length > 30
+                                ? resultado.url_oferta.substring(0, 30) + '...'
+                                : resultado.url_oferta;
+                        link.className = 'text-blue-500 hover:underline';
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            window.electronAPI.openExternalLink(resultado.url_oferta);
+                        };
+                        urlCell.appendChild(link);
+                    } else {
+                        urlCell.textContent = '-';
+                    }
                 });
             }
 
-            // Add event listener for save config button if it has an ID
-            // Example: document.getElementById('btnSalvarConfig').addEventListener('click', salvarConfiguracoes);
-            // For now, assuming the HTML was <button ... onclick="salvarConfiguracoes()">
-            // The provided HTML for the button is: <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">Salvar Configurações</button>
-            // So, we need to make sure salvarConfiguracoes is global or re-attach.
-            // Making it global for now by not wrapping in an IIFE or being a module.
-            // To be safe, explicitly assign it to the window object if it was not global or re-attach the event listener
-            const saveConfigBtn = Array.from(document.querySelectorAll('button.btn-primary')).find(btn => btn.textContent.includes('Salvar Configurações'));
-            if (saveConfigBtn) {
-                saveConfigBtn.onclick = salvarConfiguracoes; // Re-assign to the new async function
+            // --- Lógica para Histórico ---
+            async function renderHistoricoCotacoes() {
+                try {
+                    const response = await window.electronAPI.getHistorico(null); // Filtro é null por enquanto
+                    if (response.success) {
+                        const historico = response.data;
+                        historicoCotacoesBody.innerHTML = '';
+                        if (historico.length === 0) {
+                            historicoCotacoesBody.innerHTML =
+                                '<tr><td colspan="5" class="text-center text-gray-500 py-4">Nenhum histórico de cotações.</td></tr>';
+                            return;
+                        }
+                        historico.forEach((item) => {
+                            const row = historicoCotacoesBody.insertRow(); // Insere no final, mas backend ordena por data_busca DESC
+                            row.insertCell().textContent = item.desejo_nome;
+                            row.insertCell().textContent = item.site;
+                            row.insertCell().textContent = `R$ ${parseFloat(item.preco).toFixed(2)}`;
+
+                            let dataFormatada = new Date(item.data_busca).toLocaleString('pt-BR');
+                            row.insertCell().textContent = dataFormatada;
+
+                            const detailsCell = row.insertCell();
+                            const viewButton = document.createElement('button');
+                            viewButton.className = 'text-blue-500 hover:underline text-sm';
+                            viewButton.textContent = 'Ver Oferta';
+                            if (item.url_oferta) {
+                                viewButton.onclick = (e) => {
+                                    e.preventDefault();
+                                    window.electronAPI.openExternalLink(item.url_oferta);
+                                };
+                            } else {
+                                viewButton.disabled = true;
+                                viewButton.title = 'URL da oferta não disponível';
+                            }
+                            detailsCell.appendChild(viewButton);
+                            // Poderia adicionar mais detalhes, como `item.detalhes_parcelamento_se_houver`
+                        });
+                    } else {
+                        showNotification(`Erro ao buscar histórico: ${response.error}`, 'error');
+                        historicoCotacoesBody.innerHTML =
+                            '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro ao carregar histórico.</td></tr>';
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao buscar histórico: ${error.message}`, 'error');
+                    historicoCotacoesBody.innerHTML =
+                        '<tr><td colspan="5" class="text-center text-red-500 py-4">Erro grave ao carregar histórico.</td></tr>';
+                }
             }
 
-        });
-    </script>
-</body>
+            // --- Lógica para Configurações ---
+            async function renderConfiguracoes() {
+                try {
+                    const response = await window.electronAPI.getConfiguracoes();
+                    if (response.success) {
+                        const configs = response.data;
+                        document.getElementById('configCep').value = configs.cep || '';
+                        document.getElementById('configLimiteParcela').value = configs.limiteParcela || '';
+                        document.getElementById('configGatilhoFinalizar').value = configs.gatilhoFinalizar || 1;
+                        document.getElementById('configAgendamentoCron').value = configs.agendamentoCron || '0 3 * * *';
+                        document.getElementById('configCriterioRanking').value = configs.criterioRanking || 'custo';
+                        document.getElementById('configConcurrency').value = configs.concurrency || 2;
+                        document.getElementById('configRodarGatilho').checked = !!configs.rodarGatilho;
+                        document.getElementById('configRodarAgendada').checked = !!configs.rodarAgendada;
+                    } else {
+                        showNotification(`Erro ao carregar configurações: ${response.error}`, 'error');
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao carregar configurações: ${error.message}`, 'error');
+                }
+            }
+
+            // Renomeado de salvarConfiguracoesSimulado para salvarConfiguracoes
+            async function salvarConfiguracoes() {
+                const configsObject = {
+                    cep: document.getElementById('configCep').value,
+                    limiteParcela: parseFloat(document.getElementById('configLimiteParcela').value) || 0,
+                    gatilhoFinalizar: parseInt(document.getElementById('configGatilhoFinalizar').value) || 1,
+                    agendamentoCron: document.getElementById('configAgendamentoCron').value,
+                    criterioRanking: document.getElementById('configCriterioRanking').value,
+                    concurrency: parseInt(document.getElementById('configConcurrency').value) || 2,
+                    rodarGatilho: document.getElementById('configRodarGatilho').checked,
+                    rodarAgendada: document.getElementById('configRodarAgendada').checked,
+                };
+
+                try {
+                    const response = await window.electronAPI.saveConfiguracoes(configsObject);
+                    if (response.success) {
+                        showNotification('Configurações salvas com sucesso!', 'success');
+                    } else {
+                        showNotification(`Erro ao salvar configurações: ${response.error}`, 'error');
+                    }
+                } catch (error) {
+                    showNotification(`Erro inesperado ao salvar configurações: ${error.message}`, 'error');
+                }
+            }
+            // Attach to button - assuming the button's onclick was `salvarConfiguracoesSimulado()`
+            // If the button has an ID, it's better to add event listener in DOMContentLoaded
+            // For now, this function is globally available if HTML calls salvarConfiguracoes()
+
+            // --- Inicialização ---
+            document.addEventListener('DOMContentLoaded', async () => {
+                await renderListaDesejos();
+                await renderListaParcelamentos();
+                await renderHistoricoCotacoes();
+                await renderConfiguracoes();
+
+                // Ativar a primeira aba por padrão
+                if (document.querySelector('.tab-button')) {
+                    document.querySelector('.tab-button').click();
+                }
+
+                // Setup notification listener from main process
+                if (window.electronAPI && window.electronAPI.onNotification) {
+                    window.electronAPI.onNotification((payload) => {
+                        console.log('Notification from main:', payload);
+                        showNotification(`${payload.message}`, payload.type);
+                    });
+                }
+
+                // Add event listener for save config button if it has an ID
+                // Example: document.getElementById('btnSalvarConfig').addEventListener('click', salvarConfiguracoes);
+                // For now, assuming the HTML was <button ... onclick="salvarConfiguracoes()">
+                // The provided HTML for the button is: <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">Salvar Configurações</button>
+                // So, we need to make sure salvarConfiguracoes is global or re-attach.
+                // Making it global for now by not wrapping in an IIFE or being a module.
+                // To be safe, explicitly assign it to the window object if it was not global or re-attach the event listener
+                const saveConfigBtn = Array.from(document.querySelectorAll('button.btn-primary')).find((btn) =>
+                    btn.textContent.includes('Salvar Configurações')
+                );
+                if (saveConfigBtn) {
+                    saveConfigBtn.onclick = salvarConfiguracoes; // Re-assign to the new async function
+                }
+            });
+        </script>
+    </body>
 </html>

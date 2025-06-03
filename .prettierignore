@@ -1,0 +1,6 @@
+node_modules/
+dist_electron/
+*.db
+*.log
+logs/
+screenshots_debug/
