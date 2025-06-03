@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Notification, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, shell, dialog } = require('electron');
 const path = require('path');
 const winston = require('winston');
 const cron = require('node-cron');
@@ -72,13 +72,11 @@ app.whenReady().then(() => {
         logger.info(`Database initialized at ${dbPath}`);
     } catch (error) {
         logger.error(`Failed to initialize database in main.js: ${error.message}`);
-        // Handle critical error: maybe show an error dialog and quit
-        // For now, just log and attempt to continue; app might not work correctly.
-        // Consider displaying an error to the user before quitting or attempting to run in a degraded mode.
-        // Example:
-        // dialog.showErrorBox('Erro Crítico de Banco de Dados', `Não foi possível iniciar o banco de dados: ${error.message}\nO aplicativo será encerrado.`);
-        // app.quit();
-        // return; // Important to prevent further execution if quitting
+        // Display an error dialog and quit if database initialization fails
+        dialog.showErrorBox('Erro Crítico de Banco de Dados',
+            `Não foi possível iniciar o banco de dados: ${error.message}\nO aplicativo será encerrado.`);
+        app.quit();
+        return; // Prevent window creation after quitting
     }
 
     logger.info('Creating window...');
