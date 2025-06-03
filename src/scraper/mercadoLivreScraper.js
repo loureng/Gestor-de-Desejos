@@ -80,53 +80,47 @@ async function searchMercadoLivre(searchTermOrUrl) {
                 let urlOffer = null;
                 let detailsParcelamento = "Não informado";
 
-                // Product title: Often in a specific class within an <a> tag or an <h2>
-                const nameElement = await item.locator('h2.ui-search-item__title').first(); // .first() to ensure we get one if multiple match
-                if (await nameElement.count()) {
-                    name = await nameElement.textContent();
-                } else { // Fallback: title might be in an <a> tag's title attribute or text
-                    const altNameElement = await item.locator('a.ui-search-link[title]').first();
-                    if (await altNameElement.count()) {
-                         name = await altNameElement.getAttribute('title');
-                    } else { // Another fallback for text content of a link
-                         const linkTextElement = await item.locator('a.ui-search-link').first();
-                         if(await linkTextElement.count()) name = await linkTextElement.textContent();
+                // Extremely simplified attempt: Find a link that looks like a product link by its href
+                const productLink = await item.locator('a[href*="/MLB-"], a[href*="/p/MLA-"]').first(); // MLA for Argentina, but /p/ is common
+
+                if (await productLink.count() > 0) {
+                    urlOffer = await productLink.getAttribute('href');
+                    name = await productLink.getAttribute('title'); // Hope title attribute exists
+
+                    if (!name) { // If title attribute is missing, try to get text from a known title class inside the link
+                        const titleSpan = await productLink.locator('.ui-search-item__title').first();
+                        if (await titleSpan.count() > 0) {
+                            name = await titleSpan.textContent();
+                        } else { // Else, just get any text from the link
+                            name = await productLink.textContent();
+                        }
                     }
+
+                    if (name) name = name.replace(/\s+/g, ' ').trim();
+                    if (urlOffer) urlOffer = urlOffer.split('#')[0];
+
+                    console.log(`[MercadoLivreScraper] Name: ${name}, URL: ${urlOffer}`);
+                } else {
+                    console.log('[MercadoLivreScraper] Product-like link (href*="/MLB-", href*="/p/") not found.');
                 }
-                name = name ? name.trim() : null;
 
+                // Price (current logic seems to work, keeping it)
+                const priceFractionElement = await item.locator('span.andes-money-amount__fraction').first();
+                const priceCentsElement = await item.locator('span.andes-money-amount__cents').first();
 
-                // Price: Look for the main price container, then fraction and cents.
-                // Common structure: .ui-search-price__second-line .andes-money-amount
-                const priceContainer = await item.locator('div.ui-search-price__second-line .andes-money-amount').first();
-                if (await priceContainer.count()) {
-                    const fraction = await priceContainer.locator('.andes-money-amount__fraction').textContent();
-                    const cents = await priceContainer.locator('.andes-money-amount__cents').first(); // Use .first() and check count
-                    let priceString = fraction.replace(/\D/g, '');
-                    if (await cents.count()) {
-                        priceString += `.${(await cents.textContent()).replace(/\D/g, '')}`;
+                if (await priceFractionElement.count() > 0) {
+                    let priceString = (await priceFractionElement.textContent()).replace(/\D/g, '');
+                    if (await priceCentsElement.count() > 0) {
+                        const centsStr = (await priceCentsElement.textContent()).replace(/\D/g, '');
+                        priceString += `.${centsStr}`;
                     }
                     price = parseFloat(priceString);
-                } else { // Fallback: sometimes price is directly in .ui-search-price__part
-                    const fallbackPriceElement = await item.locator('span.ui-search-price__part .andes-money-amount__fraction').first();
-                     if (await fallbackPriceElement.count()) {
-                        let priceString = (await fallbackPriceElement.textContent()).replace(/\D/g, '');
-                        const fallbackCentsElement = await item.locator('span.ui-search-price__part .andes-money-amount__cents').first();
-                        if(await fallbackCentsElement.count()){
-                            priceString += `.${(await fallbackCentsElement.textContent()).replace(/\D/g, '')}`;
-                        }
-                        price = parseFloat(priceString);
-                     }
+                    console.log(`[MercadoLivreScraper] Price found: ${price}`);
+                } else {
+                    console.log('[MercadoLivreScraper] Price fraction element not found.');
                 }
                                 
-                // URL: Usually the href of a prominent link covering the item image or title.
-                const urlElement = await item.locator('a.ui-search-link').first();
-                if (await urlElement.count()) {
-                    urlOffer = await urlElement.getAttribute('href');
-                    urlOffer = urlOffer ? urlOffer.split('#')[0] : null; 
-                }
-
-                // Installments:
+                // 3. Installments:
                 const installmentElement = await item.locator('span.ui-search-installments').first(); 
                 if (await installmentElement.count()) {
                     let installmentText = await installmentElement.textContent();
