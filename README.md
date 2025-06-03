@@ -1,3 +1,39 @@
+# Gestor de Desejos e Parcelamentos (Wish and Installment Manager)
+
+## Overview
+
+Gestor de Desejos is a desktop application designed to help you organize and manage your shopping aspirations and keep track of your installment payments. Built with Electron, it provides a user-friendly interface to maintain a list of products you wish to purchase, monitor their prices online, and manage your ongoing payment plans for items already bought.
+
+Stop juggling spreadsheets, notes, and browser bookmarks! Gestor de Desejos aims to be your central hub for smart shopping and financial planning.
+
+## Key Features
+
+The application currently offers the following functionalities:
+
+*   **Wish List Management**:
+    *   Add products you desire to a centralized list, including details like product name, a direct URL to the item, and a priority level (High, Medium, Low).
+    *   View and manage your wish list items.
+    *   Remove items from your list.
+*   **Installment Tracking**:
+    *   Register items you've purchased on an installment plan.
+    *   Track key details: item name, total value, total number of installments, number of installments already paid, and the start date of the payment plan.
+    *   View and manage your ongoing installments.
+    *   Remove installment records once completed or if no longer needed.
+*   **Price Monitoring (Amazon.com.br)**:
+    *   Manually trigger a price check for items in your wish list. The application will attempt to scrape current prices from Amazon.com.br.
+    *   *(Experimental: Mercado Livre scraping is included but currently requires selector updates to function correctly).*
+*   **Quotation History**:
+    *   Automatically saves the results of price checks, allowing you to see price fluctuations over time.
+    *   View a history of found offers, including the item, site, price, and date of the check.
+*   **Application Configuration**:
+    *   Customize settings such as your CEP (zip code for potential shipping estimates in future features), a monthly installment limit, and parameters for scheduled tasks.
+*   **Automated Price Checking (Scheduled Task)**:
+    *   The application includes a feature for automated, background price checking for wish list items. This task is scheduled to run periodically (configurable).
+    *   *(Note: Effectiveness depends on the reliability of the scrapers).*
+*   **Persistent Storage**: All your data (wishes, installments, history, configurations) is stored locally in a SQLite database, ensuring your information persists between sessions.
+*   **Logging**: Application events and errors are logged for troubleshooting.
+
+---
 Documentação: Transformando o Protótipo em Aplicativo Electron Funcional
 Este documento descreve os passos necessários para converter o protótipo de interface HTML/CSS/JS do "Gestor de Desejos e Parcelamentos" em um aplicativo desktop Electron completo e funcional, conforme o README.md original do projeto.
 

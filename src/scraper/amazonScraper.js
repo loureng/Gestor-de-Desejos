@@ -38,9 +38,10 @@ async function searchAmazon(searchTermOrUrl) {
         console.log(`[AmazonScraper] Waiting for search results for: ${searchTermOrUrl}`);
         
         try {
-            await page.waitForSelector('div[data-component-type="s-search-results"]', { timeout: 15000 }); // Shorter timeout for results
+            // Try waiting for the first product item itself as a sign that results are loaded
+            await page.waitForSelector('div[data-component-type="s-search-result"]', { timeout: 20000 }); // Increased timeout slightly
         } catch (e) {
-            console.warn(`[AmazonScraper] Initial attempt to find search results failed: ${e.message}`);
+            console.warn(`[AmazonScraper] Initial attempt to find search results (first item) failed: ${e.message}`);
             const screenshotPath = path.join(screenshotsDir, `amazon_error_search_results_${Date.now()}.png`);
             await page.screenshot({ path: screenshotPath });
             console.log(`[AmazonScraper] Screenshot taken: ${screenshotPath}`);
@@ -78,22 +79,8 @@ async function searchAmazon(searchTermOrUrl) {
                 let urlOffer = null;
                 let detailsParcelamento = "Não informado";
 
-                const nameElement = await item.$('h2 a.a-link-normal span.a-text-normal');
-                if (nameElement) {
-                    name = await nameElement.textContent();
-                    name = name.trim();
-                }
-
-                const priceElement = await item.$('span.a-price > span.a-offscreen');
-                if (priceElement) {
-                    let priceText = await priceElement.textContent();
-                    priceText = priceText.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
-                    if (priceText) {
-                        price = parseFloat(priceText);
-                    }
-                }
-                
-                const urlElement = await item.$('h2 a.a-link-normal');
+                // Updated URL selector: Look for a common link structure within product items
+                const urlElement = await item.$('a.a-link-normal.s-underline-text.s-link-style.a-text-normal'); // Combined and simplified
                 if (urlElement) {
                     let rawUrl = await urlElement.getAttribute('href');
                     if (rawUrl) {
@@ -103,7 +90,75 @@ async function searchAmazon(searchTermOrUrl) {
                             urlOffer = rawUrl;
                         }
                         urlOffer = urlOffer.split('?')[0];
-                        urlOffer = urlOffer.split('/ref=')[0]; 
+                        urlOffer = urlOffer.split('/ref=')[0];
+                    }
+
+                    // 2. Extract Name - Prefer a specific span inside the link for cleaner text
+                    const nameSpanInsideLink = await urlElement.$('span.a-size-medium.a-color-base.a-text-normal, span.a-size-base-plus.a-color-base.a-text-normal');
+                    if (nameSpanInsideLink) {
+                        name = await nameSpanInsideLink.textContent();
+                    } else {
+                        // Fallback to the direct text content of the link if specific span isn't found
+                        // This might include extra text like prices, so it's less ideal
+                        name = await urlElement.textContent();
+                    }
+                    if (name) {
+                        name = name.replace(/\s+/g, ' ').trim(); // Clean whitespace
+                        // Attempt to remove price string artifacts from name
+                        name = name.replace(/R\$\s*[\d.,]+/g, '').replace(/\s*De:\s*R\$\s*[\d.,]+/gi, '').replace(/\s+/g, ' ').trim();
+                    }
+                }
+
+                // If name is still not found (e.g. different link structure), try a broader search for title-like spans
+                if (!name) {
+                    const fallbackNameElement = await item.$('span.a-size-medium.a-color-base.a-text-normal, span.a-size-base-plus.a-color-base.a-text-normal');
+                    if (fallbackNameElement) {
+                        name = await fallbackNameElement.textContent();
+                        if (name) {
+                            name = name.replace(/\s+/g, ' ').trim();
+                             // Attempt to remove price string artifacts from name
+                            name = name.replace(/R\$\s*[\d.,]+/g, '').replace(/\s*De:\s*R\$\s*[\d.,]+/gi, '').replace(/\s+/g, ' ').trim();
+                        }
+                    }
+                }
+                // As a final generic fallback for name, try any h2 element's text content if all else fails
+                if (!name) {
+                    const h2NameElement = await item.$('h2');
+                    if (h2NameElement) {
+                        name = await h2NameElement.textContent();
+                        if (name) {
+                            name = name.replace(/\s+/g, ' ').trim();
+                             // Attempt to remove price string artifacts from name
+                            name = name.replace(/R\$\s*[\d.,]+/g, '').replace(/\s*De:\s*R\$\s*[\d.,]+/gi, '').replace(/\s+/g, ' ').trim();
+                        }
+                    }
+                }
+
+                // Price selector (remains relatively stable)
+                const priceElement = await item.$('span.a-price > span.a-offscreen');
+                if (priceElement) {
+                    let priceText = await priceElement.textContent();
+                    priceText = priceText.replace(/[^\d,.]/g, '').replace(/\./g, (match, offset, fullText) => offset < fullText.lastIndexOf(',') ? '' : '.').replace(',', '.').trim();
+                    if (priceText) {
+                        price = parseFloat(priceText);
+                    }
+                }
+                
+                // Fallback for URL if name and price were found but URL wasn't from the primary productLinkElement
+                // This might happen if the primary link selector failed but fallbacks for name/price succeeded.
+                if (!urlOffer && name && price) {
+                    const fallbackUrlElement = await item.$('h2 a.a-link-normal');
+                    if (fallbackUrlElement) {
+                       let rawUrl = await fallbackUrlElement.getAttribute('href');
+                       if (rawUrl) {
+                            if (!rawUrl.startsWith('http')) {
+                                urlOffer = `https://www.amazon.com.br${rawUrl}`;
+                            } else {
+                                urlOffer = rawUrl;
+                            }
+                            urlOffer = urlOffer.split('?')[0];
+                            urlOffer = urlOffer.split('/ref=')[0];
+                        }
                     }
                 }
 
