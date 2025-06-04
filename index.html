@@ -475,7 +475,7 @@
                                 <tr>
                                     <th>Item Desejado</th>
                                     <th>Site da Oferta</th>
-                                    <th>Preço Simulado</th>
+                                    <th>Preço</th>
                                     <th>URL Original</th>
                                 </tr>
                             </thead>
@@ -552,7 +552,7 @@
                             </div>
                         </div>
                         <div class="mt-8">
-                            <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">
+                            <button type="button" class="btn btn-primary" onclick="salvarConfiguracoes()">
                                 Salvar Configurações
                             </button>
                         </div>
@@ -964,7 +964,7 @@
                 }
             }
 
-            // Renomeado de salvarConfiguracoesSimulado para salvarConfiguracoes
+            // Função responsável por salvar as configurações informadas
             async function salvarConfiguracoes() {
                 const configsObject = {
                     cep: document.getElementById('configCep').value,
@@ -988,9 +988,8 @@
                     showNotification(`Erro inesperado ao salvar configurações: ${error.message}`, 'error');
                 }
             }
-            // Attach to button - assuming the button's onclick was `salvarConfiguracoesSimulado()`
-            // If the button has an ID, it's better to add event listener in DOMContentLoaded
-            // For now, this function is globally available if HTML calls salvarConfiguracoes()
+            // Garante que o botão "Salvar Configurações" utilize a função acima
+            // Caso exista um ID específico, o ideal é adicionar o listener após o DOMContentLoaded
 
             // --- Inicialização ---
             document.addEventListener('DOMContentLoaded', async () => {
@@ -1012,13 +1011,9 @@
                     });
                 }
 
-                // Add event listener for save config button if it has an ID
-                // Example: document.getElementById('btnSalvarConfig').addEventListener('click', salvarConfiguracoes);
-                // For now, assuming the HTML was <button ... onclick="salvarConfiguracoes()">
-                // The provided HTML for the button is: <button type="button" class="btn btn-primary" onclick="salvarConfiguracoesSimulado()">Salvar Configurações</button>
-                // So, we need to make sure salvarConfiguracoes is global or re-attach.
-                // Making it global for now by not wrapping in an IIFE or being a module.
-                // To be safe, explicitly assign it to the window object if it was not global or re-attach the event listener
+                // Adiciona o evento ao botão de salvar, caso não seja utilizado addEventListener no HTML
+                // Se o botão possuir um ID próprio, prefira usar document.getElementById('btnSalvarConfig').addEventListener('click', salvarConfiguracoes);
+                // Esta atribuição garante que o botão existente use a função atual mesmo quando definido via atributo onclick.
                 const saveConfigBtn = Array.from(document.querySelectorAll('button.btn-primary')).find((btn) =>
                     btn.textContent.includes('Salvar Configurações')
                 );
