@@ -1,4 +1,5 @@
 const { searchMercadoLivre } = require('./src/scraper/mercadoLivreScraper');
+const assert = require('assert');
 
 async function testScraper() {
     const searchTerm = "fone de ouvido bluetooth"; // Example search term
@@ -7,6 +8,7 @@ async function testScraper() {
     try {
         const offers = await searchMercadoLivre(searchTerm);
 
+        assert.ok(Array.isArray(offers), 'The scraper should return an array');
         console.log(`[TestScriptML] Received ${offers.length} offers:`);
         if (offers.length > 0) {
             offers.forEach((offer, index) => {
@@ -16,6 +18,10 @@ async function testScraper() {
                 console.log(`URL: ${offer.urlOffer}`);
                 console.log(`Site: ${offer.site}`);
                 console.log(`Installment: ${offer.detailsParcelamento}`);
+
+                assert.ok(offer.name, 'Offer must contain a name');
+                assert.strictEqual(typeof offer.price, 'number', 'Price must be a number');
+                assert.ok(offer.urlOffer, 'Offer must contain urlOffer');
             });
         } else {
             console.log("[TestScriptML] No offers found.");
